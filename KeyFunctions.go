@@ -23,12 +23,13 @@ func handleKeys(keys *[]Key, parentDir string) {
 	for _, key := range *keys {
 		keyFileName := strings.ReplaceAll(key.Name, " ", "_")
 		keyFilePath := filepath.Join(parentDir, keyFileName+".lua")
-		err := os.WriteFile(keyFilePath, []byte(key.Script), 0644)
-		key.Script = ""
-		key = convertKeyCodes(key)
-		if err != nil {
-			panic(err)
+		if len(key.Script) > 0 && !containsIllegalCharacters(keyFileName) {
+			if err := os.WriteFile(keyFilePath, []byte(key.Script), 0644); err != nil {
+				panic(err)
+			}
+			key.Script = ""
 		}
+		key = convertKeyCodes(key)
 		jsonFile = append(jsonFile, key)
 	}
 

@@ -21,10 +21,11 @@ func handleScripts(scripts *[]Script, parentDir string) {
 	for _, script := range *scripts {
 		scriptFileName := strings.ReplaceAll(script.Name, " ", "_")
 		scriptFilePath := filepath.Join(parentDir, scriptFileName+".lua")
-		err := os.WriteFile(scriptFilePath, []byte(script.Script), 0644)
-		script.Script = ""
-		if err != nil {
-			panic(err)
+		if len(script.Script) > 0 && !containsIllegalCharacters(scriptFileName) {
+			if err := os.WriteFile(scriptFilePath, []byte(script.Script), 0644); err != nil {
+				panic(err)
+			}
+			script.Script = ""
 		}
 		jsonFile = append(jsonFile, script)
 	}

@@ -60,7 +60,7 @@ func patternNumberToType(patternNumber int) string {
 }
 
 func handleTriggers(triggers *[]Trigger, parentDir string) {
-	if len(*triggers) == 0{
+	if len(*triggers) == 0 {
 		return
 	}
 	var jsonFile []JSONTrigger
@@ -73,11 +73,15 @@ func handleTriggers(triggers *[]Trigger, parentDir string) {
 	for _, trigger := range *triggers {
 		scriptFileName := strings.ReplaceAll(trigger.Name, " ", "_")
 		scriptFilePath := filepath.Join(parentDir, scriptFileName+".lua")
-		err := os.WriteFile(scriptFilePath, []byte(trigger.Script), 0644)
-		if err != nil {
-			panic(err)
+		jsonTrigger := convertToJSONTrigger(trigger)
+		if len(trigger.Script) == 0 || containsIllegalCharacters(scriptFileName) {
+			jsonTrigger.Script = trigger.Script
+		} else {
+			if err := os.WriteFile(scriptFilePath, []byte(trigger.Script), 0644); err != nil {
+				panic(err)
+			}
 		}
-		jsonFile = append(jsonFile, convertToJSONTrigger(trigger))
+		jsonFile = append(jsonFile, jsonTrigger)
 	}
 
 	jsonFilePath := filepath.Join(parentDir, "triggers.json")

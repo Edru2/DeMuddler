@@ -8,7 +8,7 @@ import (
 )
 
 func handleAliases(aliasList *[]Alias, parentDir string) {
-	if len(*aliasList) == 0{
+	if len(*aliasList) == 0 {
 		return
 	}
 	var jsonFile []Alias
@@ -21,10 +21,11 @@ func handleAliases(aliasList *[]Alias, parentDir string) {
 	for _, alias := range *aliasList {
 		aliasFileName := strings.ReplaceAll(alias.Name, " ", "_")
 		aliasFilePath := filepath.Join(parentDir, aliasFileName+".lua")
-		err := os.WriteFile(aliasFilePath, []byte(alias.Script), 0644)
-		alias.Script = ""
-		if err != nil {
-			panic(err)
+		if len(alias.Script) > 0 && !containsIllegalCharacters(aliasFileName) {
+			if err := os.WriteFile(aliasFilePath, []byte(alias.Script), 0644); err != nil {
+				panic(err)
+			}
+			alias.Script = ""
 		}
 		jsonFile = append(jsonFile, alias)
 	}

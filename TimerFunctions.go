@@ -23,12 +23,13 @@ func handleTimers(timers *[]Timer, parentDir string) {
 	for _, timer := range *timers {
 		timerFileName := strings.ReplaceAll(timer.Name, " ", "_")
 		timerFilePath := filepath.Join(parentDir, timerFileName+".lua")
-		err := os.WriteFile(timerFilePath, []byte(timer.Script), 0644)
-		ConvertTimeToSingleProperties(&timer)
-		timer.Script = ""
-		if err != nil {
-			panic(err)
+		if len(timer.Script) > 0 && !containsIllegalCharacters(timerFileName) {
+			if err := os.WriteFile(timerFilePath, []byte(timer.Script), 0644); err != nil {
+				panic(err)
+			}
+			timer.Script = ""
 		}
+		ConvertTimeToSingleProperties(&timer)
 		jsonFile = append(jsonFile, timer)
 	}
 

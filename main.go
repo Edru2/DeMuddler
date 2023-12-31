@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+func containsIllegalCharacters(filename string) bool {
+	illegalCharacters := []rune{'<', '>', ':', '"', '/', '\\', '|', '?', '*'}
+	return strings.ContainsAny(filename, string(illegalCharacters))
+}
+
 func main() {
 	filePath := flag.String("f", "", "Path to the file")
 	flag.Parse()
