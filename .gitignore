@@ -1,0 +1,5 @@
+*.mpackage
+*.zip
+de-muddler
+de-muddler-windows-amd64.exe
+de-muddler-macos-amd64
