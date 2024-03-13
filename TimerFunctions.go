@@ -35,6 +35,9 @@ func handleTimers(timers *[]Timer, parentDir string) {
 
 	jsonFilePath := filepath.Join(parentDir, "timers.json")
 	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
+	if err != nil {
+		panic(err)
+	}
 	err = os.WriteFile(jsonFilePath, jsonData, 0644)
 	if err != nil {
 		panic(err)

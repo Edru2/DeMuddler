@@ -86,6 +86,9 @@ func handleTriggers(triggers *[]Trigger, parentDir string) {
 
 	jsonFilePath := filepath.Join(parentDir, "triggers.json")
 	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
+	if err != nil {
+		panic(err)
+	}
 	err = os.WriteFile(jsonFilePath, jsonData, 0644)
 	if err != nil {
 		panic(err)

@@ -32,6 +32,9 @@ func handleScripts(scripts *[]Script, parentDir string) {
 
 	jsonFilePath := filepath.Join(parentDir, "scripts.json")
 	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
+	if err != nil {
+		panic(err)
+	}
 	err = os.WriteFile(jsonFilePath, jsonData, 0644)
 	if err != nil {
 		panic(err)
