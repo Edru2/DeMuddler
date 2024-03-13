@@ -16,6 +16,7 @@ type Alias struct {
 	Name       string       `xml:"name" json:"name"`
 	Regex      string       `xml:"regex" json:"regex,omitempty"`
 	Script     string       `xml:"script" json:"script"`
+	Command    string       `xml:"command" json:"command,omitempty"`
 	AliasList  []Alias      `xml:"Alias" json:"-"`
 	AliasGroup []AliasGroup `xml:"AliasGroup" json:"-"`
 }
