@@ -33,8 +33,15 @@ func convertToJSONTrigger(trigger Trigger) JSONTrigger {
 		jsonTrigger.Patterns = append(jsonTrigger.Patterns, jsonPattern)
 	}
 
-	for _, child := range trigger.Triggers {
-		jsonTrigger.Children = append(jsonTrigger.Children, convertToJSONTrigger(child))
+	// only append the children to this triggers.json if they are *not* in a folder
+	// this seems weird, but the child triggers / trigger groups will be handled by recursion
+	// in handleTriggerGroups.
+	// Adding children elements associated with folders will prevent muddler from picking up the correct
+	// json and scripts inside those folders.
+	if trigger.IsFolder == "no" {
+		for _, child := range trigger.Triggers {
+			jsonTrigger.Children = append(jsonTrigger.Children, convertToJSONTrigger(child))
+		}
 	}
 
 	return jsonTrigger
@@ -59,9 +66,9 @@ func patternNumberToType(patternNumber int) string {
 	return triggerType
 }
 
-func handleTriggers(triggers *[]Trigger, parentDir string) {
+func handleTriggers(triggers *[]Trigger, parentDir string) []JSONTrigger {
 	if len(*triggers) == 0 {
-		return
+		return nil
 	}
 	var jsonFile []JSONTrigger
 	if parentDir != "" {
@@ -84,19 +91,62 @@ func handleTriggers(triggers *[]Trigger, parentDir string) {
 		jsonFile = append(jsonFile, jsonTrigger)
 	}
 
+	return jsonFile
+
+}
+
+func writeJson(jsonFile []JSONTrigger, parentDir string) {
+	if parentDir != "" {
+		if err := os.MkdirAll(parentDir, 0755); err != nil {
+			panic(err)
+		}
+	}
+
 	jsonFilePath := filepath.Join(parentDir, "triggers.json")
 	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
+	if err != nil {
+		panic(err)
+	}
 	err = os.WriteFile(jsonFilePath, jsonData, 0644)
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func handleTriggerGroups(groups *[]TriggerGroup, baseDir string) {
 	for i := range *groups {
 		groupPath := filepath.Join(baseDir, (*groups)[i].Name)
-		handleTriggers(&((*groups)[i].Triggers), groupPath)
+		// first, handle all the triggers in this group, but don't write triggers.json yet
+		jsonTriggers := handleTriggers(&((*groups)[i].Triggers), groupPath)
+
+		// next, for all triggerGroups in this group, if they are a chain, add them to triggers.json
+		triggerGroups := (*groups)[i].TriggerGroup // all the triggerGroups in this group
+		for x := range triggerGroups {
+			if len(triggerGroups[x].Trigger.RegexCodeList) > 0 { // chains require a trigger pattern
+				localJson := handleTriggers(&[]Trigger{triggerGroups[x].Trigger}, groupPath) // this group's trigger data
+				jsonTriggers = append(jsonTriggers, localJson...)
+			}
+		}
+
+		// now write the full triggers.json (trigger data + triggerGroup data)
+		writeJson(jsonTriggers, groupPath)
+		// recur
 		handleTriggerGroups(&((*groups)[i].TriggerGroup), groupPath)
 	}
+}
+
+// handle the root directory first, before using recursion to build the rest of the TriggerGroups.
+func handleTriggerPackage(groups *[]TriggerGroup, triggers *[]Trigger, baseDir string) {
+	jsonTriggers := handleTriggers(triggers, baseDir)
+
+	for i := range *groups {
+		if len((*groups)[i].Trigger.RegexCodeList) > 0 { // chains require a trigger pattern
+			localJson := handleTriggers(&[]Trigger{(*groups)[i].Trigger}, baseDir) // the Trigger data on TriggerGroup
+			jsonTriggers = append(jsonTriggers, localJson...)
+		}
+	}
+
+	writeJson(jsonTriggers, baseDir)
+
+	handleTriggerGroups(groups, baseDir)
 }

@@ -38,8 +38,7 @@ func handleXML(f *zip.File, baseDir string) {
 					panic(err)
 				}
 				localBaseDir := filepath.Join(baseDir, "triggers")
-				handleTriggerGroups(&triggerPackage.TriggerGroup, localBaseDir)
-				handleTriggers(&triggerPackage.Triggers, localBaseDir)
+				handleTriggerPackage(&triggerPackage.TriggerGroup, &triggerPackage.Triggers, localBaseDir)
 			case "ScriptPackage":
 				err = decoder.DecodeElement(&scriptPackage, &se)
 				if err != nil {
