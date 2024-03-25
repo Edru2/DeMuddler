@@ -11,7 +11,11 @@ import (
 
 func containsIllegalCharacters(filename string) bool {
 	illegalCharacters := []rune{'<', '>', ':', '"', '/', '\\', '|', '?', '*'}
-	return strings.ContainsAny(filename, string(illegalCharacters))
+	result := strings.ContainsAny(filename, string(illegalCharacters))
+	if result {
+		fmt.Printf("warn: file %s contains illegal characters, consider changing its name.\n", filename)
+	}
+	return result
 }
 
 func main() {
