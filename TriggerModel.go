@@ -1,5 +1,6 @@
 package main
-import(
+
+import (
 	"encoding/xml"
 )
 
@@ -13,13 +14,13 @@ type Trigger struct {
 	IsActive            string         `xml:"isActive,attr"`
 	IsFolder            string         `xml:"isFolder,attr"`
 	IsMultiline         string         `xml:"isMultiline,attr"`
-	IsPerlSlashGOption  string         `xml:"isPerlSlashGOption"`
-	IsColorizerTrigger  string         `xml:"isColorizerTrigger"`
-	IsFilterTrigger     string         `xml:"isFilterTrigger"`
-	IsSoundTrigger      string         `xml:"isSoundTrigger"`
-	IsColorTrigger      string         `xml:"isColorTrigger"`
-	IsColorTriggerFg    string         `xml:"isColorTriggerFg"`
-	IsColorTriggerBg    string         `xml:"isColorTriggerBg"`
+	IsPerlSlashGOption  string         `xml:"isPerlSlashGOption,attr"`
+	IsColorizerTrigger  string         `xml:"isColorizerTrigger,attr"`
+	IsFilterTrigger     string         `xml:"isFilterTrigger,attr"`
+	IsSoundTrigger      string         `xml:"isSoundTrigger,attr"`
+	IsColorTrigger      string         `xml:"isColorTrigger,attr"`
+	IsColorTriggerFg    string         `xml:"isColorTriggerFg,attr"`
+	IsColorTriggerBg    string         `xml:"isColorTriggerBg,attr"`
 	Name                string         `xml:"name"`
 	Script              string         `xml:"script"`
 	TriggerType         int            `xml:"triggerType"`
@@ -64,4 +65,3 @@ type Pattern struct {
 	Pattern string `json:"pattern"`
 	Type    string `json:"type"`
 }
-

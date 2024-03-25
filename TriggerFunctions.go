@@ -21,8 +21,8 @@ func convertToJSONTrigger(parentDir string, trigger Trigger) JSONTrigger {
 		FireLength:     trigger.MStayOpen,
 		SoundFile:      trigger.MSoundFile,
 		Highlight:      trigger.IsColorizerTrigger,
-		HighlightFG:    trigger.IsColorTriggerFg,
-		HighlightBG:    trigger.IsColorTriggerBg,
+		HighlightFG:    trigger.MFgColor,
+		HighlightBG:    trigger.MBgColor,
 	}
 
 	for i, content := range trigger.RegexCodeList {
