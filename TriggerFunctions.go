@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func convertToJSONTrigger(trigger Trigger) JSONTrigger {
+func convertToJSONTrigger(parentDir string, trigger Trigger) JSONTrigger {
 	jsonTrigger := JSONTrigger{
 		Name:           trigger.Name,
 		IsActive:       trigger.IsActive,
@@ -40,10 +40,10 @@ func convertToJSONTrigger(trigger Trigger) JSONTrigger {
 	// json and scripts inside those folders.
 	if trigger.IsFolder == "no" {
 		for _, child := range trigger.Triggers {
-			jsonTrigger.Children = append(jsonTrigger.Children, convertToJSONTrigger(child))
+			jsonTrigger.Children = append(jsonTrigger.Children, convertToJSONTrigger(parentDir, child))
 		}
 	}
-
+	writeTriggerScript(parentDir, &trigger, &jsonTrigger)
 	return jsonTrigger
 }
 
@@ -78,21 +78,24 @@ func handleTriggers(triggers *[]Trigger, parentDir string) []JSONTrigger {
 	}
 
 	for _, trigger := range *triggers {
-		scriptFileName := strings.ReplaceAll(trigger.Name, " ", "_")
-		scriptFilePath := filepath.Join(parentDir, scriptFileName+".lua")
-		jsonTrigger := convertToJSONTrigger(trigger)
-		if len(trigger.Script) == 0 || containsIllegalCharacters(scriptFileName) {
-			jsonTrigger.Script = trigger.Script
-		} else {
-			if err := os.WriteFile(scriptFilePath, []byte(trigger.Script), 0644); err != nil {
-				panic(err)
-			}
-		}
+		jsonTrigger := convertToJSONTrigger(parentDir, trigger)
 		jsonFile = append(jsonFile, jsonTrigger)
 	}
 
 	return jsonFile
 
+}
+
+func writeTriggerScript(parentDir string, trigger *Trigger, jsonTrigger *JSONTrigger) {
+	scriptFileName := strings.ReplaceAll(trigger.Name, " ", "_")
+	scriptFilePath := filepath.Join(parentDir, scriptFileName+".lua")
+	if len(trigger.Script) == 0 || containsIllegalCharacters(scriptFileName) {
+		jsonTrigger.Script = trigger.Script
+	} else {
+		if err := os.WriteFile(scriptFilePath, []byte(trigger.Script), 0644); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func writeJson(jsonFile []JSONTrigger, parentDir string) {

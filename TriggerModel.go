@@ -33,7 +33,7 @@ type Trigger struct {
 	Path                string         `xml:"path"`
 	RegexCodeList       []string       `xml:"regexCodeList>string"`
 	RegexCodeProperties []int          `xml:"regexCodePropertyList>integer"`
-	Triggers            []Trigger      `xml:"Trigger" json:"children"`
+	Triggers            []Trigger      `xml:"Trigger" json:"children,omitempty"`
 	TriggerGroup        []TriggerGroup `xml:"TriggerGroup" json:"-"`
 }
 
