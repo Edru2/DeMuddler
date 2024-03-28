@@ -56,9 +56,9 @@ func convertToJSONTrigger(parentDir string, trigger Trigger) JSONTrigger {
 func convertToAnsiColor(colorStr string) (ansiColor string) {
 	switch colorStr {
 	case "-2":
-		ansiColor = "IGNORE" 
+		ansiColor = "IGNORE"
 	case "0":
-		ansiColor = "DEFAULT" 
+		ansiColor = "DEFAULT"
 	case "1":
 		ansiColor = "8" // Light black (dark gray)
 	case "2":
@@ -98,6 +98,8 @@ func convertToAnsiColor(colorStr string) (ansiColor string) {
 }
 
 func extractColorTriggerColors(colorStr string) string {
+
+	// Handling "FG#BG#" pattern
 	var fgColor, bgColor string
 	fgIndex := strings.Index(colorStr, "FG")
 	bgIndex := strings.Index(colorStr, "BG")
@@ -105,8 +107,26 @@ func extractColorTriggerColors(colorStr string) string {
 	if fgIndex != -1 && bgIndex != -1 {
 		fgColor = colorStr[fgIndex+2 : bgIndex]
 		bgColor = colorStr[bgIndex+2:]
+
+		return fmt.Sprintf("%s,%s", convertToAnsiColor(fgColor), convertToAnsiColor(bgColor))
 	}
-	return fmt.Sprintf("%s,%s", convertToAnsiColor(fgColor), convertToAnsiColor(bgColor))
+
+	// Handling "ANSI_COLORS_F{#}_B{#}" pattern
+	fgStart := strings.Index(colorStr, "F{")
+	bgStart := strings.Index(colorStr, "}_B{")
+
+	if fgStart != -1 && bgStart != -1 {
+		fgEnd := strings.Index(colorStr[fgStart:], "}") + fgStart
+		bgEnd := strings.Index(colorStr[bgStart+3:], "}") + bgStart + 3
+
+		if fgEnd > fgStart && bgEnd > bgStart {
+			fgColor = colorStr[fgStart+2 : fgEnd]
+			bgColor = colorStr[bgStart+4 : bgEnd]
+			return fmt.Sprintf("%s,%s", fgColor, bgColor)
+		}
+	}
+
+	return ""
 }
 
 func patternNumberToType(patternNumber int) string {
