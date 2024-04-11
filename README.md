@@ -19,29 +19,34 @@ Before you begin, ensure you have Go (Golang) installed on your system. If you d
 - **Clone the Repository:** To get started, clone this repository to your local machine. You can do this by running the following command in your terminal or command prompt:
     
 
--   `git clone https://github.com/Edru2/DeMuddler/` 
+```sh
+git clone https://github.com/Edru2/DeMuddler/
+```
     
 -   **Build the Project:** Navigate to the directory where you cloned the repository. Once you are in the project's root directory, compile the project by running:
     
-
--  `go build .` 
+```sh
+go build .
+```
     
-    This command will compile the source code into an executable file, which you will find in the same directory.
+-    This command will compile the source code into an executable file, which you will find in the same directory.
     
 
 ## Usage
 
 To use DeMuddler, simply use the command line interface. Here's the basic usage:
 
-sh
+```sh
 
-`de-muddler -f [filename]` 
+de-muddler -f [filename]
+``` 
 
 Replace `[filename]` with the name of your `.mpackage` file. For example, if your file is named `example.mpackage`, you would use:
 
-sh
+```sh
 
-`de-muddler -f example.mpackage` 
+de-muddler -f example.mpackage
+``` 
 
 This command will process the specified file using DeMuddler.
 
