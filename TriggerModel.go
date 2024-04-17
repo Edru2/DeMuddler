@@ -48,7 +48,7 @@ type JSONTrigger struct {
 	IsFolder       string        `json:"isFolder"`
 	Command        string        `json:"command,omitempty"`
 	Multiline      string        `json:"multiline"`
-	MultilineDelta string        `json:"multielineDelta"`
+	MultilineDelta string        `json:"multilineDelta"`
 	Matchall       string        `json:"matchall"`
 	Filter         string        `json:"filter"`
 	FireLength     string        `json:"fireLength"`
