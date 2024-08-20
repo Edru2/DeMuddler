@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,51 +8,59 @@ import (
 	"strings"
 )
 
-func handleKeys(keys *[]Key, parentDir string) {
+func writeKeyList(keys *[]KeyEntity, parentDir string, seenNames map[string]bool) {
+	for i := range *keys {
+		key := &(*keys)[i]
+		if key.IsFolder == "no" {
+			handleKeys(&key.KeyList, parentDir, seenNames)
+		}
+		writeScriptFiles(key, parentDir, seenNames)
+	}
+}
+
+func writeKeyJson(keys *[]KeyEntity, parentDir string) {
+
+	for i := range *keys {
+		key := &(*keys)[i]
+		convertKeyCodes(key)
+	}
+	writeJsonToFilewriteJsonToFile(keys, parentDir, "keys.json")
+}
+
+func handleKeys(keys *[]KeyEntity, parentDir string, seenNames map[string]bool) {
 	if len(*keys) == 0 {
 		return
 	}
-	var jsonFile []Key
 	if parentDir != "" {
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			panic(err)
 		}
 	}
 
-	for _, key := range *keys {
-		keyFileName := strings.ReplaceAll(key.Name, " ", "_")
-		keyFilePath := filepath.Join(parentDir, keyFileName+".lua")
-		if len(key.Script) > 0 && !containsIllegalCharacters(keyFileName) {
-			if err := os.WriteFile(keyFilePath, []byte(key.Script), 0644); err != nil {
-				panic(err)
-			}
-			key.Script = ""
-		}
-		key = convertKeyCodes(key)
-		jsonFile = append(jsonFile, key)
-	}
-
-	jsonFilePath := filepath.Join(parentDir, "keys.json")
-	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
-	if err != nil {
-		panic(err)
-	}
-	err = os.WriteFile(jsonFilePath, jsonData, 0644)
-	if err != nil {
-		panic(err)
-	}
-
+	writeKeyList(keys, parentDir, seenNames)
+	writeKeyJson(keys, parentDir)
 }
 
-func handleKeyGroups(groups *[]KeyGroup, baseDir string) {
+func handleKeyGroups(groups *[]KeyEntity, baseDir string, seenNames map[string]bool) {
 	for i := range *groups {
-		groupPath := filepath.Join(baseDir, (*groups)[i].Name)
-		handleKeys(&((*groups)[i].KeyList), groupPath)
-		handleKeyGroups(&((*groups)[i].KeyGroup), groupPath)
+		group := &(*groups)[i]
+
+		groupPath := filepath.Join(baseDir, group.Name)
+		if err := os.MkdirAll(groupPath, 0755); err != nil {
+			panic(err)
+		}
+
+		handleKeys(&group.KeyList, groupPath, seenNames)
+		handleKeyGroups(&group.KeyGroup, groupPath, seenNames)
+		group.KeyList = nil
+		var singleGroup []KeyEntity
+		singleGroup = append(singleGroup, *group)
+		writeKeyList(&singleGroup, baseDir, seenNames)
+		writeKeyJson(&singleGroup, baseDir)
 	}
 }
 
-func convertKeyCodes(key Key) Key {
+func convertKeyCodes(key *KeyEntity){
 	var pressedKeys []string
 	for _, mod := range keyModifiers {
 		value, err := strconv.ParseInt(key.KeyModifier, 10, 32)
@@ -74,6 +81,4 @@ func convertKeyCodes(key Key) Key {
 		pressedKeys = append(pressedKeys, val)
 	}
 	key.Keys = strings.Join(pressedKeys, "+")
-
-	return key
 }

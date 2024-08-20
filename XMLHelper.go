@@ -45,32 +45,36 @@ func handleXML(f *zip.File, baseDir string) {
 					panic(err)
 				}
 				localBaseDir := filepath.Join(baseDir, "scripts")
-				handleScriptGroups(&scriptPackage.ScriptGroup, localBaseDir)
-				handleScripts(&scriptPackage.Scripts, localBaseDir)
+				seenNames := make(map[string]bool)
+				handleScriptGroups(&scriptPackage.ScriptGroup, localBaseDir, seenNames)
+				handleScripts(&scriptPackage.Scripts, localBaseDir, seenNames)
 			case "AliasPackage":
 				err = decoder.DecodeElement(&aliasPackage, &se)
 				if err != nil {
 					panic(err)
 				}
+				seenNames := make(map[string]bool)
 				localBaseDir := filepath.Join(baseDir, "aliases")
-				handleAliasGroups(&aliasPackage.AliasGroup, localBaseDir)
-				handleAliases(&aliasPackage.AliasList, localBaseDir)
+				handleAliasGroups(&aliasPackage.AliasGroup, localBaseDir, seenNames)
+				handleAliases(&aliasPackage.AliasList, localBaseDir, seenNames)
 			case "TimerPackage":
 				err = decoder.DecodeElement(&timerPackage, &se)
 				if err != nil {
 					panic(err)
 				}
+				seenNames := make(map[string]bool)
 				localBaseDir := filepath.Join(baseDir, "timers")
-				handleTimerGroups(&timerPackage.TimerGroup, localBaseDir)
-				handleTimers(&timerPackage.Timers, localBaseDir)
+				handleTimerGroups(&timerPackage.TimerGroup, localBaseDir, seenNames)
+				handleTimers(&timerPackage.Timers, localBaseDir, seenNames)
 			case "KeyPackage":
 				err = decoder.DecodeElement(&keyPackage, &se)
 				if err != nil {
 					panic(err)
 				}
+				seenNames := make(map[string]bool)
 				localBaseDir := filepath.Join(baseDir, "keys")
-				handleKeyGroups(&keyPackage.KeyGroup, localBaseDir)
-				handleKeys(&keyPackage.KeyList, localBaseDir)
+				handleKeyGroups(&keyPackage.KeyGroup, localBaseDir, seenNames)
+				handleKeys(&keyPackage.KeyList, localBaseDir, seenNames)
 			}
 		}
 	}

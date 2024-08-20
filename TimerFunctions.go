@@ -1,58 +1,64 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
-func handleTimers(timers *[]Timer, parentDir string) {
+func writeTimerList(timers *[]TimerEntity, parentDir string, seenNames map[string]bool) {
+	for i := range *timers {
+		timer := &(*timers)[i]
+		if timer.IsFolder == "no" {
+			handleTimers(&timer.Timers, parentDir, seenNames)
+		}
+		writeScriptFiles(timer, parentDir, seenNames)
+	}
+}
+
+func writeTimerJson(timers *[]TimerEntity, parentDir string) {
+
+	for i := range *timers {
+		timer := &(*timers)[i]
+		ConvertTimeToSingleProperties(timer)
+	}
+	writeJsonToFilewriteJsonToFile(timers, parentDir, "timers.json")
+}
+
+func handleTimers(timers *[]TimerEntity, parentDir string, seenNames map[string]bool) {
 	if len(*timers) == 0 {
 		return
 	}
-	var jsonFile []Timer
 	if parentDir != "" {
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			panic(err)
 		}
 	}
 
-	for _, timer := range *timers {
-		timerFileName := strings.ReplaceAll(timer.Name, " ", "_")
-		timerFilePath := filepath.Join(parentDir, timerFileName+".lua")
-		if len(timer.Script) > 0 && !containsIllegalCharacters(timerFileName) {
-			if err := os.WriteFile(timerFilePath, []byte(timer.Script), 0644); err != nil {
-				panic(err)
-			}
-			timer.Script = ""
-		}
-		ConvertTimeToSingleProperties(&timer)
-		jsonFile = append(jsonFile, timer)
-	}
-
-	jsonFilePath := filepath.Join(parentDir, "timers.json")
-	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
-	if err != nil {
-		panic(err)
-	}
-	err = os.WriteFile(jsonFilePath, jsonData, 0644)
-	if err != nil {
-		panic(err)
-	}
-
+	writeTimerList(timers, parentDir, seenNames)
+	writeTimerJson(timers, parentDir)
 }
 
-func handleTimerGroups(groups *[]TimerGroup, baseDir string) {
+func handleTimerGroups(groups *[]TimerEntity, baseDir string, seenNames map[string]bool) {
 	for i := range *groups {
-		groupPath := filepath.Join(baseDir, (*groups)[i].Name)
-		handleTimers(&((*groups)[i].Timers), groupPath)
-		handleTimerGroups(&((*groups)[i].TimerGroup), groupPath)
+		group := &(*groups)[i]
+
+		groupPath := filepath.Join(baseDir, group.Name)
+		if err := os.MkdirAll(groupPath, 0755); err != nil {
+			panic(err)
+		}
+
+		handleTimers(&group.Timers, groupPath, seenNames)
+		handleTimerGroups(&group.TimerGroup, groupPath, seenNames)
+		group.Timers = nil
+		var singleGroup []TimerEntity
+		singleGroup = append(singleGroup, *group)
+		writeTimerList(&singleGroup, baseDir, seenNames)
+		writeTimerJson(&singleGroup, baseDir)
 	}
 }
-func ConvertTimeToSingleProperties(timer *Timer) Timer {
+func ConvertTimeToSingleProperties(timer *TimerEntity) TimerEntity {
 	t, err := time.Parse("15:04:05.000", timer.Time)
 	if err != nil {
 		panic(err)

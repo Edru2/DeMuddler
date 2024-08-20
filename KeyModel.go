@@ -5,26 +5,22 @@ import (
 )
 
 type KeyPackage struct {
-	XMLName  xml.Name   `xml:"KeyPackage" json:"-"`
-	KeyList  []Key      `xml:"Key" json:"-"`
-	KeyGroup []KeyGroup `xml:"KeyGroup" json:"-"`
+	XMLName  xml.Name    `xml:"KeyPackage" json:"-"`
+	KeyList  []KeyEntity `xml:"Key" json:"-"`
+	KeyGroup []KeyEntity `xml:"KeyGroup" json:"-"`
 }
 
-type Key struct {
-	IsActive    string     `xml:"isActive,attr" json:"isActive"`
-	IsFolder    string     `xml:"isFolder,attr" json:"isFolder"`
-	Name        string     `xml:"name" json:"name"`
-	Command     string     `xml:"command" json:"command"`
-	Script      string     `xml:"script" json:"script"`
-	Keys        string     `xml:"-" json:"keys"`
-	KeyCode     string     `xml:"keyCode" json:"-"`
-	KeyModifier string     `xml:"keyModifier" json:"-"`
-	KeyList     []Key      `xml:"Key" json:"-"`
-	KeyGroup    []KeyGroup `xml:"KeyGroup" json:"-"`
-}
-
-type KeyGroup struct {
-	Key
+type KeyEntity struct {
+	Name        string      `xml:"name" json:"name"`
+	IsActive    string      `xml:"isActive,attr" json:"isActive"`
+	Command     string      `xml:"command" json:"command"`
+	Script      string      `xml:"script" json:"script"`
+	Keys        string      `xml:"-" json:"keys"`
+	KeyCode     string      `xml:"keyCode" json:"-"`
+	KeyModifier string      `xml:"keyModifier" json:"-"`
+	KeyList     []KeyEntity `xml:"Key" json:"children,omitempty"`
+	IsFolder    string      `xml:"isFolder,attr" json:"isFolder"`
+	KeyGroup    []KeyEntity `xml:"KeyGroup" json:"-"`
 }
 
 type Modifier struct {
@@ -130,4 +126,16 @@ var keyMap = map[int]string{
 	0x2c:       ",",
 	0x2e:       ".",
 	0x7c:       "|",
+}
+
+func (k *KeyEntity) GetName() string {
+	return k.Name
+}
+
+func (k *KeyEntity) GetScript() string {
+	return k.Script
+}
+
+func (k *KeyEntity) SetScript(script string) {
+	k.Script = script
 }

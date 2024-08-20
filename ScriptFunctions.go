@@ -1,51 +1,53 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
-func handleScripts(scripts *[]Script, parentDir string) {
+func writeScripts(scripts *[]ScriptEntity, parentDir string, seenNames map[string]bool) {
+	for i := range *scripts {
+		script := &(*scripts)[i]
+		if script.IsFolder == "no" {
+			handleScripts(&script.Scripts, parentDir, seenNames)
+		}
+		writeScriptFiles(script, parentDir, seenNames)
+	}
+}
+
+func writeScriptJson(scripts *[]ScriptEntity, parentDir string) {
+	writeJsonToFilewriteJsonToFile(scripts, parentDir, "scripts.json")
+}
+
+func handleScripts(scripts *[]ScriptEntity, parentDir string, seenNames map[string]bool) {
 	if len(*scripts) == 0 {
 		return
 	}
-	var jsonFile []Script
 	if parentDir != "" {
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			panic(err)
 		}
 	}
 
-	for _, script := range *scripts {
-		scriptFileName := strings.ReplaceAll(script.Name, " ", "_")
-		scriptFilePath := filepath.Join(parentDir, scriptFileName+".lua")
-		if len(script.Script) > 0 && !containsIllegalCharacters(scriptFileName) {
-			if err := os.WriteFile(scriptFilePath, []byte(script.Script), 0644); err != nil {
-				panic(err)
-			}
-			script.Script = ""
-		}
-		jsonFile = append(jsonFile, script)
-	}
-
-	jsonFilePath := filepath.Join(parentDir, "scripts.json")
-	jsonData, err := json.MarshalIndent(jsonFile, "", "       ")
-	if err != nil {
-		panic(err)
-	}
-	err = os.WriteFile(jsonFilePath, jsonData, 0644)
-	if err != nil {
-		panic(err)
-	}
-
+	writeScripts(scripts, parentDir, seenNames)
+	writeScriptJson(scripts, parentDir)
 }
 
-func handleScriptGroups(groups *[]ScriptGroup, baseDir string) {
+func handleScriptGroups(groups *[]ScriptEntity, baseDir string, seenNames map[string]bool) {
 	for i := range *groups {
-		groupPath := filepath.Join(baseDir, (*groups)[i].Name)
-		handleScripts(&((*groups)[i].Scripts), groupPath)
-		handleScriptGroups(&((*groups)[i].ScriptGroup), groupPath)
+		group := &(*groups)[i]
+
+		groupPath := filepath.Join(baseDir, group.Name)
+		if err := os.MkdirAll(groupPath, 0755); err != nil {
+			panic(err)
+		}
+
+		handleScripts(&group.Scripts, groupPath, seenNames)
+		handleScriptGroups(&group.ScriptGroup, groupPath, seenNames)
+		group.Scripts = nil
+		var singleGroup []ScriptEntity
+		singleGroup = append(singleGroup, *group)
+		writeScripts(&singleGroup, baseDir, seenNames)
+		writeScriptJson(&singleGroup, baseDir)
 	}
 }
