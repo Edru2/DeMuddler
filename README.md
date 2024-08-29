@@ -50,6 +50,8 @@ de-muddler -f example.mpackage
 
 This command will process the specified file using DeMuddler.
 
+Looking to use Github and CI to publish your package? Have a look at [this guide](https://mud.gesslar.dev/muddler.html).
+
 ## Contributing and Issues
 
 This early version of DeMuddler might have bugs or issues. 
