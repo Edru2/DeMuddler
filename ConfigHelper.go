@@ -44,6 +44,7 @@ func parseLuaConfig(content string) PackageConfig {
 	var config PackageConfig
 	var captureDescription bool
 	var descriptionBuilder strings.Builder
+	var outputFileFound bool
 
 	lines := strings.Split(content, "\n")
 
@@ -86,6 +87,17 @@ func parseLuaConfig(content string) PackageConfig {
 					captureDescription = true
 				}
 				descriptionBuilder.WriteString(strings.Trim(value, "[\"]"))
+			case "outputFile":
+				outputFileFound = true
+				if strings.Trim(value, "[\"]") == "true" {
+					config.OutputFile = true
+				} else {
+					config.OutputFile = false
+				}
+
+			}
+			if !outputFileFound {
+				config.OutputFile = true
 			}
 		}
 	}
