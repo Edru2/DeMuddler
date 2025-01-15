@@ -60,7 +60,7 @@ func handleKeyGroups(groups *[]KeyEntity, baseDir string, seenNames map[string]b
 	}
 }
 
-func convertKeyCodes(key *KeyEntity){
+func convertKeyCodes(key *KeyEntity) {
 	var pressedKeys []string
 	for _, mod := range keyModifiers {
 		value, err := strconv.ParseInt(key.KeyModifier, 10, 32)

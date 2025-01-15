@@ -23,7 +23,16 @@ func writeJsonToFilewriteJsonToFile[T JSONSerializable](data *[]T, parentDir, fi
 	}
 
 	jsonFilePath := filepath.Join(parentDir, fileName)
-	jsonData, err := json.MarshalIndent(data, "", "       ")
+
+	// Read previous data, if any
+	var prev []T
+	prevData, err := os.ReadFile(jsonFilePath)
+	if err == nil {
+		json.Unmarshal(prevData, &prev)
+	}
+
+	finalData := append(prev, *data...)
+	jsonData, err := json.MarshalIndent(finalData, "", "       ")
 	if err != nil {
 		panic(err)
 	}
