@@ -181,6 +181,9 @@ func writeTriggerScript(parentDir string, trigger *Trigger, jsonTrigger *JSONTri
 }
 
 func writeJson(jsonFile []JSONTrigger, parentDir string) {
+	if jsonFile == nil {
+		return
+	}
 	if parentDir != "" {
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			panic(err)
@@ -204,13 +207,10 @@ func handleTriggerGroups(groups *[]TriggerGroup, baseDir string) {
 		// first, handle all the triggers in this group, but don't write triggers.json yet
 		jsonTriggers := handleTriggers(&((*groups)[i].Triggers), groupPath)
 
-		// next, for all triggerGroups in this group, if they are a chain, add them to triggers.json
 		triggerGroups := (*groups)[i].TriggerGroup // all the triggerGroups in this group
 		for x := range triggerGroups {
-			if len(triggerGroups[x].Trigger.RegexCodeList) > 0 { // chains require a trigger pattern
-				localJson := handleTriggers(&[]Trigger{triggerGroups[x].Trigger}, groupPath) // this group's trigger data
-				jsonTriggers = append(jsonTriggers, localJson...)
-			}
+			localJson := handleTriggers(&[]Trigger{triggerGroups[x].Trigger}, groupPath) // this group's trigger data
+			jsonTriggers = append(jsonTriggers, localJson...)
 		}
 
 		// now write the full triggers.json (trigger data + triggerGroup data)

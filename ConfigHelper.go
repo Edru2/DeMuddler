@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -75,7 +76,7 @@ func parseLuaConfig(content string) PackageConfig {
 			case "author":
 				config.Author = strings.Trim(value, "[\"]")
 			case "icon":
-				config.Icon = strings.Trim(value, "[\"]")
+				config.Icon = path.Join(".mudlet", "Icon", strings.Trim(value, "[\"]"))
 			case "title":
 				config.Title = strings.Trim(value, "[\"]")
 			case "description":
