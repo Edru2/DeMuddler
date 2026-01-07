@@ -17,22 +17,14 @@ type ScriptHandler interface {
 	SetScript(script string)
 }
 
-func writeJsonToFilewriteJsonToFile[T JSONSerializable](data *[]T, parentDir, fileName string) {
+func writeJsonToFile[T JSONSerializable](data *[]T, parentDir, fileName string) {
 	if len(*data) == 0 {
 		return
 	}
 
 	jsonFilePath := filepath.Join(parentDir, fileName)
 
-	// Read previous data, if any
-	var prev []T
-	prevData, err := os.ReadFile(jsonFilePath)
-	if err == nil {
-		json.Unmarshal(prevData, &prev)
-	}
-
-	finalData := append(prev, *data...)
-	jsonData, err := json.MarshalIndent(finalData, "", "       ")
+	jsonData, err := json.MarshalIndent(data, "", "       ")
 	if err != nil {
 		panic(err)
 	}
