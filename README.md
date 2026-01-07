@@ -37,18 +37,21 @@ go build .
 To use DeMuddler, simply use the command line interface. Here's the basic usage:
 
 ```sh
-
-de-muddler -f [filename]
-``` 
+de-muddler [filename]
+```
 
 Replace `[filename]` with the name of your `.mpackage` file. For example, if your file is named `example.mpackage`, you would use:
 
 ```sh
-
-de-muddler -f example.mpackage
-``` 
+de-muddler example.mpackage
+```
 
 This command will process the specified file using DeMuddler.
+
+**Note:** The `-f` flag is optional but still supported for backwards compatibility:
+```sh
+de-muddler -f example.mpackage
+```
 
 Looking to use Github and CI to publish your package? Have a look at [this guide](https://mud.gesslar.dev/muddler.html).
 
