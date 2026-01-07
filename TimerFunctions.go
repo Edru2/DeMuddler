@@ -23,7 +23,7 @@ func writeTimerJson(timers *[]TimerEntity, parentDir string) {
 		timer := &(*timers)[i]
 		ConvertTimeToSingleProperties(timer)
 	}
-	writeJsonToFilewriteJsonToFile(timers, parentDir, "timers.json")
+	writeJsonToFile(timers, parentDir, "timers.json")
 }
 
 func handleTimers(timers *[]TimerEntity, parentDir string, seenNames map[string]bool) {
