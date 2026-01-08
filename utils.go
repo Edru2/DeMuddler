@@ -12,12 +12,18 @@ import (
 func parseFlags() string {
 	filePath := flag.String("f", "", "Path to the file")
 	flag.Parse()
+
+	// If -f flag is not provided, check for positional argument
+	if *filePath == "" && len(flag.Args()) > 0 {
+		return flag.Args()[0]
+	}
+
 	return *filePath
 }
 
 func validateFilePath(filePath string) {
 	if filePath == "" {
-		fmt.Println("You must specify a file path using the -f flag.")
+		fmt.Println("Usage: de-muddler [-f] <file.mpackage>")
 		os.Exit(1)
 	}
 }
