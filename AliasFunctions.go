@@ -16,7 +16,7 @@ func writeAliasList(aliasList *[]AliasEntity, parentDir string, seenNames map[st
 }
 
 func writeAliasJson(aliasList *[]AliasEntity, parentDir string) {
-	writeJsonToFilewriteJsonToFile(aliasList, parentDir, "aliases.json")
+	writeJsonToFile(aliasList, parentDir, "aliases.json")
 }
 
 func handleAliases(aliasList *[]AliasEntity, parentDir string, seenNames map[string]bool) {

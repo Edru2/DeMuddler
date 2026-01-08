@@ -16,7 +16,7 @@ func writeScripts(scripts *[]ScriptEntity, parentDir string, seenNames map[strin
 }
 
 func writeScriptJson(scripts *[]ScriptEntity, parentDir string) {
-	writeJsonToFilewriteJsonToFile(scripts, parentDir, "scripts.json")
+	writeJsonToFile(scripts, parentDir, "scripts.json")
 }
 
 func handleScripts(scripts *[]ScriptEntity, parentDir string, seenNames map[string]bool) {
