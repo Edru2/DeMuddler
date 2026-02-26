@@ -24,7 +24,7 @@ func writeKeyJson(keys *[]KeyEntity, parentDir string) {
 		key := &(*keys)[i]
 		convertKeyCodes(key)
 	}
-	writeJsonToFilewriteJsonToFile(keys, parentDir, "keys.json")
+	writeJsonToFile(keys, parentDir, "keys.json")
 }
 
 func handleKeys(keys *[]KeyEntity, parentDir string, seenNames map[string]bool) {
