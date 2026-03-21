@@ -59,6 +59,9 @@ func handleTimerGroups(groups *[]TimerEntity, baseDir string, seenNames map[stri
 	}
 }
 func ConvertTimeToSingleProperties(timer *TimerEntity) TimerEntity {
+	if timer.Time == "" {
+		return *timer
+	}
 	t, err := time.Parse("15:04:05.000", timer.Time)
 	if err != nil {
 		panic(err)
